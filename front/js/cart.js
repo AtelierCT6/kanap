@@ -1,84 +1,39 @@
-// récupérer le ou les produits du local storage
+let cart = JSON.parse(localStorage.getItem('cart'));
+if (cart == null) {
+    cart = [];
+} 
 
-let goods = JSON.parse(localStorage.getItem('cart'));
+let cartlist = '';
 
-let productList = fetch('http://localhost:3000/api/products')
-  .then(response =>response.json())
-  .then(products => {
-   
-    // si le panier n'est pas vide
-
-    if (goods != null){
-
-      let totalPrice = 0;
-      let totalQty = 0;
-       
-      for (let good of goods) {
-
-        //pour chaque produit sélectionné, récupérer les infos du produit
-
-        for (let product of products){
-          if(good.id === product._id){
-            good.name = product.name;
-            good.price = product.price;
-            good.image = product.imageUrl;
-            good.description = product.description;
-            good.altTxt = product.altTxt;
-          }
-        }
-
-        // ajout quantité et récupérer total
-
-        totalQty += parseInt(good.quantity);
-        totalPrice += parseInt(good.quantity) * parseInt(good.price);
-       
-        // récupérer toutes les quantités et prix et injecter au fichier html
-
-        $('totalQuantity').innerHTML = totalQty;
-        $('totalPrice').innerHTML = totalPrice;
-     }
-
-      // ajout de produit un par un dans le panier, puis ajouter la liste à la page cart.html
-
-      let cartlist ='';
-      goods.forEach(good =>{
-        cartlist += `<article class="cart__item" data-id ='${good.id}' data-color="${good.color}">
-      <div class="cart__item__img">
-        <img src="${good.image}" alt="good.altTxt">
-      </div>
-      <div class="cart__item__content">
-        <div class="cart__item__content__description">
-          <h2>${good.name}</h2>
-          <p>${good.color}</p>
-          <p>${good.price}€</p>
+for (let i=0; i<cart.length; i++) {
+    fetch('http://localhost:3000/api/products/' + cart[i].id)
+    .then(response => {return response.json()} )
+    .then(product => {
+        cartlist += `<article class="cart__item" data-id="${product._id}" data-color="${cart[i].color}">
+        <div class="cart__item__img">
+          <img src="${product.imageUrl}" alt="${product.altTxt}">
         </div>
-        <div class="cart__item__content__settings">
-          <div class="cart__item__content__settings__quantity">
-            <p>Qté : </p>
-            <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${good.quantity}">
+        <div class="cart__item__content">
+          <div class="cart__item__content__description">
+            <h2>${product.name}</h2>
+            <p>${cart[i].color}</p>
+            <p>${product.price}</p>
           </div>
-          <div class="cart__item__content__settings__delete">
-            <p class="deleteItem">Supprimer</p>
+          <div class="cart__item__content__settings">
+            <div class="cart__item__content__settings__quantity">
+              <p>Qté :</p>
+              <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${cart[i].quantity}">
+            </div>
+            <div class="cart__item__content__settings__delete">
+              <p class="deleteItem">Supprimer</p>
+            </div>
           </div>
         </div>
-      </div>
-    </article> `
-       $('cart__items').innerHTML = cartlist;
-      })
-    }
+      </article>`
      
-     // si aucun produit dans le panier, montrer 0 quantité et prix
-
-     else {
-            $('totalQuantity').innerHTML = '0';
-            $('totalPrice').innerHTML = '0';
-          }
+      $('cart__items').innerHTML = cartlist;
     })
-
-
-  .catch((err) => {
-    console.log("erreur 404, sur ressource api: " + err);
-  });
+}
 
 function $(id){
   return document.getElementById(id);
