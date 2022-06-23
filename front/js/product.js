@@ -38,6 +38,7 @@ let iteminfo = fetch('http://localhost:3000/api/products/'+productId)
         if (panier[i].id == productId && panier[i].color == $('colors').value){
         panier[i].quantity = parseInt(panier[i].quantity) + parseInt($('quantity').value);
         flag = true;
+        alert('Votre article a bien été ajouté au panier !');
       };
     };
   
@@ -49,6 +50,7 @@ let iteminfo = fetch('http://localhost:3000/api/products/'+productId)
         'quantity':parseInt($('quantity').value)
         }
         panier.push(newItem);
+        
       };
   
   
