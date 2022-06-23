@@ -4,6 +4,8 @@ if (cart == null) {
 } 
 
 let cartlist = '';
+let sumPrix = 0;
+let sumQty = 0;
 
 for (let i=0; i<cart.length; i++) {
     fetch('http://localhost:3000/api/products/' + cart[i].id)
@@ -31,10 +33,14 @@ for (let i=0; i<cart.length; i++) {
         </div>
       </article>`
      
-      $('cart__items').innerHTML = cartlist;
-    })
-}
+      document.getElementById('cart__items').innerHTML = cartlist;
 
-function $(id){
-  return document.getElementById(id);
-};
+      sumPrix += parseInt(product.price) * parseInt(cart[i].quantity);
+      sumQty += parseInt(cart[i].quantity);
+      
+      document.getElementById('totalQuantity').innerText=sumQty;
+      document.getElementById('totalPrice').innerText=sumPrix;
+
+    })
+  }
+
