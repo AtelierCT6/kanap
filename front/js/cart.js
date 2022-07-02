@@ -9,6 +9,8 @@ let cartlist = '';
 let sumPrix = 0;
 let sumQty = 0;
 
+// PANIER                                 -----------
+
 const promises = cart.map(elt =>{
   return fetch('http://localhost:3000/api/products/' + elt.id).then(response => {
     return response.json();
@@ -94,14 +96,34 @@ Promise.all(promises)
       supprimer.appendChild(supprimerItem);
       
         // TOTAUX                                   ------------------
+
         totalCalc(currentProduct.price, cartElement.quantity);
     })
+
+    let supprimers = Array.from(document.getElementsByClassName('deleteItem'));
+    supprimers.forEach((supprimer,index) => {
+      supprimer.addEventListener('click',function(){
+        cart = cart.filter(function(item,i){
+          return index !=i;
+        })
+        localStorage.setItem('cart',JSON.stringify(cart));
+        return location.reload();
+      })
+    })
+
+    let items = Array.from(document.getElementsByClassName('cart__item'));
+    items.forEach(item => {
+      item.addEventListener('change',function (e){
+        for(good of cart){
+          if(good.id == item.dataset.id && good.color == item.dataset.color){
+            good.quantity = e.target.value;
+            localStorage.setItem('cart',JSON.stringify(cart));
+          }
+        }
+        return location.reload();
+      })
+    })
   })
-    
-    
-
-
-// PANIER                                 -----------
 
 
 
