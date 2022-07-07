@@ -20,18 +20,16 @@ Promise.all(promises)
     // SUPPRESSION                                  ------------------
 
   let suppression = document.querySelectorAll('.deleteItem');
-  for (let i=0; i<suppression.length; i++){
-    suppression[i].addEventListener('click', function(event){
-      let button = event.target;
-      button.parentElement.parentElement.parentElement.parentElement.remove();
+  suppression.forEach(button => {
+    button.addEventListener('click', function(){
+      this.parentElement.parentElement.parentElement.parentElement.remove();
       total();
       cart = cart.filter(function(item){
-        // console.log(button.parentElement.parentElement);
         return item.color !== button.parentElement.parentElement.dataset.color && item.id !== button.parentElement.parentElement.dataset.id;
       })
       localStorage.setItem('cart',JSON.stringify(cart));
     })
-  }
+  })
 
     // MODIFICATION                                 ------------------
 
@@ -145,3 +143,27 @@ function total(){
   document.getElementById('totalQuantity').innerText = sumQty;
   document.getElementById('totalPrice').innerText = sumPrix
 }
+
+// FORMULAIRE          ---------------
+
+let inputs = document.querySelectorAll('.cart__order__form input');
+let regEmail = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
+let regName = /^[A-Za-z]{2,}$/;
+let regAddress = /^[a-zA-Z0-9\s,.'-]{3,}$/ ;
+
+regCheck(inputs[0],regName); 
+regCheck(inputs[1],regName); 
+regCheck(inputs[2],regAddress);
+regCheck(inputs[3],regName);
+regCheck(inputs[4],regEmail); 
+
+
+
+function regCheck(ele, reg){
+  ele.onblur = function(){
+    if(!reg.test(this.value)){
+      this.nextElementSibling.innerHTML = 'Veuillez entrer au moins 2 caractères et une adresse Email valide';
+    } 
+  }
+}
+
