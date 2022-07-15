@@ -37,7 +37,7 @@ let iteminfo = fetch('http://localhost:3000/api/products/'+productId)
         panier[i].quantity = parseInt(panier[i].quantity) + parseInt($('quantity').value);
         flag = true;
       };
-    };     
+      };   
       if(flag == false){
         newItem = {
         'id':productId,

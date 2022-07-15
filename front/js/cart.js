@@ -13,6 +13,7 @@ const promises = cart.map(elt =>{
 
 
 Promise.all(promises)
+
   .then(products =>{
     addItem(cart, products);
     total();
@@ -48,7 +49,7 @@ Promise.all(promises)
     })
   })  
 
-// FUNCTION          CALCUL                     -----------
+// FUNCTION          ADD ITEM                     -----------
 
 function addItem(cart, products){
   cart.forEach((cartElement) => {
@@ -129,6 +130,8 @@ function addItem(cart, products){
   })
 }
 
+// FUNCTION          TOTAL                   -----------
+
 function total(){
   let articles = document.querySelectorAll('article');
   let prices = document.querySelectorAll('.price');
@@ -151,19 +154,85 @@ let regEmail = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
 let regName = /^[A-Za-z]{2,}$/;
 let regAddress = /^[a-zA-Z0-9\s,.'-]{3,}$/ ;
 
-regCheck(inputs[0],regName); 
-regCheck(inputs[1],regName); 
-regCheck(inputs[2],regAddress);
-regCheck(inputs[3],regName);
-regCheck(inputs[4],regEmail); 
+regCheck(inputs[0],regName, 'Veuillez entrer au moins 2 caractères'); 
+regCheck(inputs[1],regName, 'Veuillez entrer au moins 2 caractères'); 
+regCheck(inputs[2],regAddress, 'Veuillez entrer au moins 2 caractères');
+regCheck(inputs[3],regName, 'Veuillez entrer au moins 2 caractères');
+regCheck(inputs[4],regEmail, 'Veuillez entrer une adresse Email valide'); 
 
-
-
-function regCheck(ele, reg){
-  ele.onblur = function(){
-    if(!reg.test(this.value)){
-      this.nextElementSibling.innerHTML = 'Veuillez entrer au moins 2 caractères et une adresse Email valide';
-    } 
-  }
+function regCheck(ele, reg, errorMessage) {
+    ele.addEventListener('change', function(){
+        ele.addEventListener('blur', function(){
+            if (!reg.test(this.value)) {
+                this.nextElementSibling.innerHTML = errorMessage;
+                this.setAttribute('data-val','false');
+            } else {
+              this.nextElementSibling.innerHTML = '';
+              this.setAttribute('data-val','true');
+            }
+          }) 
+    })
 }
 
+// COMMANDER          ---------------
+
+let orderButton = document.getElementById('order');
+    // création d'une variable pour recevoir les infos client et le détail du panier
+let clientInfo = {};
+
+    // creation d'un array, push l'id de l'article dans l'array
+let produitId = [];
+
+cart.forEach(item => {
+    produitId.push(item.id);
+})
+
+    // add click event to button
+orderButton.addEventListener('click', function (e) {
+    // to prevent 'submit' default action
+    e.preventDefault();
+  
+    // nombre d'informations valides dans le formulaire
+    let flag = 0;
+    inputs.forEach(input => {
+        if (input.getAttribute('data-val') == 'true') {
+            flag += 1;
+        }
+    })
+
+    // si le formulaire est valide et que le panier n'est pas vide, mettre les infos dans clientInfo
+    if (flag == 5 && produitId.length!=0) {
+        clientInfo = {
+            contact: {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                address: document.getElementById('address').value,
+                city: document.getElementById('city').value,
+                email: document.getElementById('email').value,
+            },
+            products: produitId
+      }
+
+      fetch('http://localhost:3000/api/products/order', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        }, 
+        body: JSON.stringify(clientInfo)
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          // suppression des données du localStorage, et saut à la page de confirmation
+          localStorage.clear();
+          window.location.href = "./confirmation.html?id=" + data.orderId;
+        })
+        .catch(() => {
+          alert("Une erreur est survenue, merci de revenir plus tard.");
+        })
+      
+    } else if (produitId.length == 0) {
+            alert("Vous n'avez sélectionné aucun article")
+    } else {
+            alert('Veuillez vérifier les informations rentrés dans le formulaire') 
+        }
+})
